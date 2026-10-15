@@ -15,7 +15,40 @@
   </head>
   <body class="bg-white text-slate-900 font-sans antialiased selection:bg-orange-500 selection:text-white">
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+
+    <!--
+      The original app attempted to load /src/main.tsx directly. That works in a Vite dev server
+      but on GitHub Pages the source files are not available and the page appears blank.
+
+      This script attempts to import the dev entry. If it fails (missing /src or not built),
+      we render a helpful fallback message explaining how to fix deployment.
+    -->
+    <script type="module">
+      async function start() {
+        try {
+          // Try to load the app entry (works in dev with Vite).
+          await import('/src/main.tsx');
+        } catch (e) {
+          // If import fails (404 or missing files), show a clear message instead of a blank page.
+          const root = document.getElementById('root');
+          root.innerHTML = `
+            <div style="font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding:40px; color:#0f172a;">
+              <h1 style="margin-bottom:12px;">Site not deployed</h1>
+              <p style="margin-bottom:12px;">The web app entry <code>/src/main.tsx</code> is missing or your site hasn't been built and deployed for GitHub Pages.</p>
+              <p style="margin-bottom:8px;">How to fix (pick one):</p>
+              <ol style="margin-left:18px;">
+                <li style="margin-bottom:6px;">Add your source files under <code>/src</code> (including <code>main.tsx</code>) and use a CI to build when deploying, or</li>
+                <li style="margin-bottom:6px;">Run <code>npm run build</code> locally and deploy the generated <code>/dist</code> output to GitHub Pages (push to <code>gh-pages</code> or serve from <code>gh-pages</code> branch), or</li>
+                <li>Configure a GitHub Actions workflow to run the build and publish the <code>dist</code> folder to Pages automatically.</li>
+              </ol>
+              <p style="margin-top:14px;"><a href="https://github.com/adnanahmadli0099/test01" target="_blank" rel="noopener">Open repository on GitHub</a></p>
+              <p style="color:#6b7280; font-size:13px; margin-top:8px;">(If you want, I can add a GitHub Actions workflow to build & deploy automatically.)</p>
+            </div>
+          `;
+          console.error('Failed to load /src/main.tsx — likely missing in this build/deploy. Full error:', e);
+        }
+      }
+      start();
+    </script>
   </body>
 </html>
-
